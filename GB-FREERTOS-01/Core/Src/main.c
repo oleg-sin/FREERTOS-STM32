@@ -266,11 +266,21 @@ static void MX_GPIO_Init(void)
 void StartButtonTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
+	uint8_t flag_key_press = 1;
+	uint32_t time_key_press = 0;
 	/* Infinite loop */
 	for (;;) {
-		if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET) {
+		if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET && flag_key_press) {
+			flag_key_press = 0;
 			counter++;
+			time_key_press = HAL_GetTick();
 		}
+
+		if(!flag_key_press && (HAL_GetTick() - time_key_press) > 300)
+		{
+			flag_key_press = 1;
+		}
+
 		switch (counter) {
 		case 0:
 			delay_ms = 1000;
@@ -291,7 +301,7 @@ void StartButtonTask(void const * argument)
 			counter = 0;
 			break;
 		}
-		osDelay(100);
+		osDelay(1);
 	}
   /* USER CODE END 5 */
 }
