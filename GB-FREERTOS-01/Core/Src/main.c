@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -43,9 +43,8 @@
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
 
-osThreadId controlTaskHandle;
-osThreadId ledTaskHandle;
 osThreadId buttonTaskHandle;
+osThreadId ledTaskHandle;
 /* USER CODE BEGIN PV */
 uint8_t counter = 0;
 uint32_t delay_ms;
@@ -55,9 +54,8 @@ uint32_t delay_ms;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
-void StartConrolTask(void const * argument);
-void StartLedTask(void const * argument);
 void StartButtonTask(void const * argument);
+void StartLedTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -102,36 +100,32 @@ int main(void)
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
+	/* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
+	/* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
+	/* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
+	/* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of controlTask */
-  osThreadDef(controlTask, StartConrolTask, osPriorityNormal, 0, 128);
-  controlTaskHandle = osThreadCreate(osThread(controlTask), NULL);
+  /* definition and creation of buttonTask */
+  osThreadDef(buttonTask, StartButtonTask, osPriorityNormal, 0, 128);
+  buttonTaskHandle = osThreadCreate(osThread(buttonTask), NULL);
 
   /* definition and creation of ledTask */
   osThreadDef(ledTask, StartLedTask, osPriorityNormal, 0, 128);
   ledTaskHandle = osThreadCreate(osThread(ledTask), NULL);
 
-  /* definition and creation of buttonTask */
-  osThreadDef(buttonTask, StartButtonTask, osPriorityNormal, 0, 128);
-  buttonTaskHandle = osThreadCreate(osThread(buttonTask), NULL);
-
   /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
+	/* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
@@ -140,12 +134,11 @@ int main(void)
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+	while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -263,70 +256,62 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartConrolTask */
+/* USER CODE BEGIN Header_StartButtonTask */
 /**
-  * @brief  Function implementing the controlTask thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_StartConrolTask */
-void StartConrolTask(void const * argument)
+ * @brief Function implementing the buttonTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartButtonTask */
+void StartButtonTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-	switch(counter){
-	case 0: delay_ms = 1000; break;
-	case 1: delay_ms = 500; break;
-	case 2: delay_ms = 250; break;
-	case 3: delay_ms = 125; break;
-	case 4: delay_ms = 50; break;
-	default: counter = 0; break;
+	/* Infinite loop */
+	for (;;) {
+		if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET) {
+			counter++;
+		}
+		switch (counter) {
+		case 0:
+			delay_ms = 1000;
+			break;
+		case 1:
+			delay_ms = 500;
+			break;
+		case 2:
+			delay_ms = 250;
+			break;
+		case 3:
+			delay_ms = 125;
+			break;
+		case 4:
+			delay_ms = 50;
+			break;
+		default:
+			counter = 0;
+			break;
+		}
+		osDelay(100);
 	}
-    osDelay(2);
-  }
   /* USER CODE END 5 */
 }
 
 /* USER CODE BEGIN Header_StartLedTask */
 /**
-* @brief Function implementing the ledTask thread.
-* @param argument: Not used
-* @retval None
-*/
+ * @brief Function implementing the ledTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartLedTask */
 void StartLedTask(void const * argument)
 {
   /* USER CODE BEGIN StartLedTask */
-  /* Infinite loop */
-  for(;;)
-  {
-	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-    osDelay(delay_ms);
-  }
-  /* USER CODE END StartLedTask */
-}
-
-/* USER CODE BEGIN Header_StartButtonTask */
-/**
-* @brief Function implementing the buttonTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartButtonTask */
-void StartButtonTask(void const * argument)
-{
-  /* USER CODE BEGIN StartButtonTask */
-  /* Infinite loop */
-  for(;;)
-  {
-	if (HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) == GPIO_PIN_RESET) {
-		counter++;
+	/* Infinite loop */
+	for (;;) {
+		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+		osDelay(delay_ms);
 	}
-    osDelay(100);
-  }
-  /* USER CODE END StartButtonTask */
+  /* USER CODE END StartLedTask */
 }
 
 /**
@@ -357,11 +342,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1) {
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 
