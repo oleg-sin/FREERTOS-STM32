@@ -47,7 +47,7 @@ osThreadId controlTaskHandle;
 osThreadId ledTaskHandle;
 osThreadId buttonTaskHandle;
 /* USER CODE BEGIN PV */
-uint8_t counter;
+uint8_t counter = 0;
 uint32_t delay_ms;
 /* USER CODE END PV */
 
