@@ -114,7 +114,7 @@ int main(void)
 
   /* Create the queue(s) */
   /* definition and creation of delayQueue */
-  osMessageQDef(delayQueue, 1, uint16_t);
+  osMessageQDef(delayQueue, 8, uint32_t);
   delayQueueHandle = osMessageCreate(osMessageQ(delayQueue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -274,7 +274,7 @@ void StartButtonTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   uint8_t switch_blink_speed = 0;
-  uint16_t blink_delay;
+  uint32_t blink_delay = 1000;
   uint8_t flag_key_press = 1;
   uint32_t time_key_press = 0;
   /* Infinite loop */
@@ -290,15 +290,13 @@ void StartButtonTask(void const * argument)
 			switch_blink_speed = 0;
 			blink_delay = 50;
 		}
+		osMessagePut(delayQueueHandle, blink_delay, 100);
 		time_key_press = HAL_GetTick();
 	}
 
-	xQueueSendToBack(delayQueueHandle, &blink_delay, 10);
-
-	if (!flag_key_press && (HAL_GetTick() - time_key_press) > 20) {
+	if (!flag_key_press && (HAL_GetTick() - time_key_press) > 300) {
 		flag_key_press = 1;
 	}
-    osDelay(1);
   }
   /* USER CODE END 5 */
 }
@@ -313,14 +311,17 @@ void StartButtonTask(void const * argument)
 void StartLedTask(void const * argument)
 {
   /* USER CODE BEGIN StartLedTask */
-  osDelay(100);
-  uint16_t delay_ms = 1;
+  osEvent event;
+  uint32_t delay_ms = 1;
   /* Infinite loop */
   for(;;)
   {
-	xQueueReceive(delayQueueHandle, &delay_ms, portMAX_DELAY);
+	event = osMessageGet(delayQueueHandle, 1);
+	if (event.status == osEventMessage) {
+		delay_ms = event.value.v;
+	}
 	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-    osDelay(delay_ms);
+	osDelay(delay_ms);
 
   }
   /* USER CODE END StartLedTask */
