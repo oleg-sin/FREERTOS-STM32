@@ -274,7 +274,7 @@ void StartButtonTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   uint8_t switch_blink_speed = 0;
-  uint32_t blink_delay = 1000;
+  uint32_t blink_delay;
   uint8_t flag_key_press = 1;
   uint32_t time_key_press = 0;
   /* Infinite loop */
@@ -284,11 +284,11 @@ void StartButtonTask(void const * argument)
 		flag_key_press = 0;
 		if (switch_blink_speed == 0) {
 			switch_blink_speed = 1;
-			blink_delay = 1000;
+			blink_delay = 50;
 
 		} else if (switch_blink_speed == 1) {
 			switch_blink_speed = 0;
-			blink_delay = 50;
+			blink_delay = 1000;
 		}
 		osMessagePut(delayQueueHandle, blink_delay, 100);
 		time_key_press = HAL_GetTick();
@@ -314,7 +314,7 @@ void StartLedTask(void const * argument)
 {
   /* USER CODE BEGIN StartLedTask */
   osEvent event;
-  uint32_t delay_ms = 1;
+  uint32_t delay_ms = 1000;
   /* Infinite loop */
   for(;;)
   {
