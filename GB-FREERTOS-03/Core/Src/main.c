@@ -297,6 +297,8 @@ void StartButtonTask(void const * argument)
 	if (!flag_key_press && (HAL_GetTick() - time_key_press) > 300) {
 		flag_key_press = 1;
 	}
+
+	osDelay(1);
   }
   /* USER CODE END 5 */
 }
